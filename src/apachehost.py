@@ -45,6 +45,12 @@ env = Environment(loader=FileSystemLoader(template_dir))
 http_template = env.get_template('http.conf')
 https_template = env.get_template('https.conf')
 
+# Translate file pointers into file names...
+template_vars = vars(args)
+for k, v in template_vars.items():
+    if type(v) is file:
+        template_vars[k] = v.name
+
 http_config = os.path.join(args.outputdir,
                            'http_{}.conf'.format(args.server_name))
 https_config = os.path.join(args.outputdir,
