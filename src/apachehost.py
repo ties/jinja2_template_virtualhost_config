@@ -37,10 +37,10 @@ parser.add_argument('--proxy_backend', help='url to reverse proxy to '
 args = parser.parse_args()
 
 # Create jinja2 environment, render into outputdir
-env = Environment(loader=FileSystemLoader('templates'))
-
-template_env = dict(os.environ)
-template_env['server_name'] = args.server_name
+template_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        'templates')
+env = Environment(loader=FileSystemLoader(template_dir))
 
 http_template = env.get_template('http.conf')
 https_template = env.get_template('https.conf')
@@ -51,7 +51,7 @@ https_config = os.path.join(args.outputdir,
                             'https_{}.conf'.format(args.server_name))
 
 with open(http_config, 'w') as f:
-    f.write(http_template.render(**template_env))
+    f.write(http_template.render(**vars(args)))
 
 with open(https_config, 'w') as f:
-    f.write(https_template.render(**template_env))
+    f.write(https_template.render(**vars(args)))
