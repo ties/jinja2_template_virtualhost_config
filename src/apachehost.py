@@ -26,6 +26,8 @@ parser.add_argument('--ssl_cert', type=argparse.FileType('r'),
                     help='path of the ssl certificate')
 
 # Standard apache settings
+parser.add_argument('--log_dir', help='directory for the log files',
+                    default='/var/log/apache2')
 parser.add_argument('--server_admin', help='email-address of server-admin, '
                     'if available')
 parser.add_argument('--document_root', type=PathType(exists=True, type='dir'),
