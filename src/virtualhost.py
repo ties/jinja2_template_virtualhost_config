@@ -9,6 +9,8 @@ from pathtype import PathType
 parser = argparse.ArgumentParser(
     epilog="This script does **not** perform any validation!")
 
+parser.add_argument('type', type=str, choices=['nginx', 'apache'])
+
 parser.add_argument('outputdir', type=PathType(exists=True, type='dir'),
                     help='Directory to write the config files to')
 
@@ -20,10 +22,16 @@ parser.add_argument('--ssl_key', type=argparse.FileType('r'),
                     help='path of the ssl private key')
 
 parser.add_argument('--ssl_chain', type=argparse.FileType('r'),
-                    help='path of the certificate chain')
+                    help='path of the certificate chain (all certs except for leaf)')
         
 parser.add_argument('--ssl_cert', type=argparse.FileType('r'),
-                    help='path of the ssl certificate')
+                    help='path of the ssl certificate, suitable for your server. This implies'
+'that for nginx, this is the chain as sent to the client')
+
+parser.add_argument('--dh_params', type=argparse.FileType('r'),
+                    help='Diffie Hellman parameters (nginx)')
+parser.add_argument('--log_dir', type=PathType(exists=True, type='dir'),
+		    help='Directory for logs (for nginx)', default='/var/log/nginx')
 
 # Standard apache settings
 parser.add_argument('--server_admin', help='email-address of server-admin, '
@@ -39,7 +47,7 @@ args = parser.parse_args()
 # Create jinja2 environment, render into outputdir
 template_dir = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
-        'templates')
+        'templates', args.type)
 env = Environment(loader=FileSystemLoader(template_dir))
 
 http_template = env.get_template('http.conf')
